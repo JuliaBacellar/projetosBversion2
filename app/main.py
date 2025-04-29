@@ -1,11 +1,11 @@
+
 from fastapi import FastAPI
-from aplicacao.backend.app.api.endpoints import moldes 
-from aplicacao.backend.app.database import create_db_and_tables 
-from contextlib import asynccontextmanager 
+from database import Base, engine
+from routes import router
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    create_db_and_tables()
-    yield
 
-app = FastAPI(lifespan=lifespan)
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI()
+
+app.include_router(router)

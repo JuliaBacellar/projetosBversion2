@@ -1,14 +1,11 @@
-from sqlmodel import Field, SQLModel
-from typing import Optional
-from datetime import datetime
-#class modelo de moldes,prateleiras
-class MoldeBase(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    n_ferramental : str = Field(max_length=20)
-    part_number : str = Field(max_length=25)
-    qrcode_number : str = Field(min_length=7 , max_length=10)
+from sqlalchemy import Column, Integer, String, Boolean
+from database import Base
 
+class Molde(Base):
+    __tablename__ = "moldes"
 
-class Molde(MoldeBase, table=True):
-    id: Optional[int] = Field(default=None,primary_key=True)
-    data_criacao:datetime = Field(default_factory=datetime.utcnow)
+    id = Column(Integer, primary_key=True, index=True)
+    nome = Column(String, nullable=False)
+    prateleira = Column(String, nullable=False)
+    status_presenca = Column(Boolean, default=True) 
+    qr_code = Column(String, unique=True, nullable=False)

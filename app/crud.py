@@ -1,35 +1,47 @@
-import uuid
-from typing import Any,List 
-from aplicacao.backend.app.models import Molde
-from aplicacao.backend.app.database import engine 
-from sqlmodel import Session, select
-from fastapi import FastAPI
+# crud.py
+from models import Molde  # Importa o modelo de dados
+from schemas import MoldeCreate, MoldeUpdate  # Importa os schemas (DTOs)
+from sqlalchemy.orm import Session
 
-app = FastAPI()
+# Buscar todos os moldes
+def get_all_moldes(db: Session):
+    return db.query(Molde).all()
 
-def get_moldes() -> List[Molde]:
-    with Session(engine) as session:
-        statement = select(Molde)
-        results = session.exec(statement).all()
-        return results
+# Buscar molde por ID
+def get_molde_by_id(db: Session, molde_id: int):
+    return db.query(Molde).filter(Molde.id == molde_id).first()
 
-def upsert_molde(model_id: int, n_ferramental: str, part_number: str, qrcode_number: str)-> Molde:
-    with Session(engine) as session:
-        molde = session.get(Molde, model_id)
-        if molde:
-            molde.n_ferramental = n_ferramental,
-            molde.part_number = part_number,
-            molde.qrcode_number = qrcode_number
-        else:
-            molde = Molde(
-                id=model_id,
-                n_ferramental=n_ferramental,
-                part_number=part_number,
-                qrcode_number=qrcode_number 
-            )
-            session.add(molde)
-        session.commit()
-        session.refresh(molde)
-        return molde
+# Criar novo molde
+def create_molde(db: Session, molde: MoldeCreate):
+    db_molde = Molde(
+        nome=molde.nome,
+        prateleira=molde.prateleira,
+        status_presenca=molde.status_presenca,
+        qr_code=molde.qr_code,
+    )
+    db.add(db_molde)
+    db.commit()
+    db.refresh(db_molde)
+    return db_molde
+
+# Atualizar molde existente
+def update_molde(db: Session, molde_id: int, molde_update: MoldeUpdate):
+    db_molde = get_molde_by_id(db, molde_id)
+    if not db_molde:
+        return None
+    for key, value in molde_update.dict(exclude_unset=True).items():
+        setattr(db_molde, key, value)
+    db.commit()
+    db.refresh(db_molde)
+    return db_molde
+
+# Deletar molde
+def delete_molde(db: Session, molde_id: int):
+    db_molde = get_molde_by_id(db, molde_id)
+    if not db_molde:
+        return None
+    db.delete(db_molde)
+    db.commit()
+    return db_molde
 
 

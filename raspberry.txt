@@ -1,0 +1,21 @@
+test_connection.py
+
+import requests
+
+# Defina o endereço da sua API FastAPI
+API = "http://SEU_IP_LOCAL:8000/moldes/sensor/update"
+
+# Dados que a Raspberry vai mandar
+dados = {
+    "qr_code": "123456",
+    "status_presenca": False  # False = molde foi retirado
+}
+
+response = requests.post(API_URL, params=dados)
+
+print(response.status_code)
+print(response.json())
+
+ip local depende da rede
+
+executar: python3 test_connection.py
